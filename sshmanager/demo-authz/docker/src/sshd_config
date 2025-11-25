@@ -1,0 +1,28 @@
+# /etc/ssh/sshd_config
+
+# The only valid authentication method is via Public Key
+PubkeyAuthentication yes
+
+# Authorize use of SSH keys
+AuthorizedKeysFile      /home/%u/.ssh/authorized_keys
+
+# Disable all other authentication methods
+ChallengeResponseAuthentication no              # Defaults to yes
+PasswordAuthentication no                       # Defaults to yes
+KbdInteractiveAuthentication no                 # Defaults to yes
+
+# These are already set by default to no, but adding here to enforce
+GSSAPIAuthentication no                         # Defaults to no
+HostbasedAuthentication no                      # Defaults to no
+KerberosAuthentication no                       # Defaults to no
+UsePAM no
+PrintMotd no
+
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+
+# override default of no subsystems
+Subsystem       sftp    /usr/lib/openssh/sftp-server
+
+# Allow for remote dev environment
+AllowTcpForwarding yes

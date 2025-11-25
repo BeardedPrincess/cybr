@@ -12,31 +12,50 @@ This collection of scripts can be used to demonstrate the realtime observability
 
 
 # Installation
+You may override some of the installation details by setting any of the following environment variables: 
 
-## Option 1: Clone this folder (or everything) from this repo
-Clone this folder from the Github repo into a directory owned by your user account (home folder works).  The following snippet pulls just this subfolder.  This option is preferred if you want to be able to retrieve updates from this repo in the future.
+| Variable               | Default Value                                 |
+|------------------------|-----------------------------------------------|
+| **BP_DEST_FOLDER**     | `${HOME}/demo-authz`                          |
+| **BP_GIT_DEST_FOLDER** | `${HOME}/.demo-authz-git-src`                 |
+| **BP_REPO_URL**        | `https://github.com/BeardedPrincess/cybr.git` |
+| **BP_REPO_BRANCH**     | `main`                                        |
 
-### Run these commands to clone just this folder:
+The purpose of each variable is outlined below:
+
+- **DEMO_FOLDER** :
+    > Which folder to place the main scripts used to control the authz demo. This is probably the one setting you may most likely want to customize. This will end up being a symbolic link to the sshmanager/demo-authz folder within the git source tree.
+- **BP_REPO_URL**        :
+    > Which repo to clone. Change this to target a different git repo (possibly your own fork)
+- **BP_REPO_BRANCH**     :
+    > Change this to control which branch to clone from git
+- **BP_GIT_DEST_FOLDER**     :
+    > This is the folder where this repo will be cloned into.  This will be separate from the BP_DEST_FOLDER to keep the path length shorter and easier to use.
+
+## 1 - Clone this repo to your linux host
+
+Clone this folder from the Github repo into a directory owned by your user account (by default current user's home folder).  The following snippet pulls just this subfolder.  
+
+**Run these commands to clone this repo:**
+
 ```bash
-REPO_URL=https://github.com/BeardedPrincess/cybr.git
-REPO_BRANCH=main
-DEST_FOLDER=${HOME}/cybr-tools  ## Change this path if you want a different folder
-git clone --depth 1 --no-checkout ${REPO_URL} ${DEST_FOLDER}
-pushd ${DEST_FOLDER}
-git sparse-checkout init --cone
-git sparse-checkout set sshmanager/demo-authz
-git checkout ${REPO_BRANCH}
-popd
+git clone --depth 1 \
+  "${BP_REPO_URL:-https://github.com/BeardedPrincess/cybr.git}" \
+  "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}"
+
+ln -s "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}/sshmanager/demo-authz" \
+  "${DEMO_FOLDER:-${HOME}/demo-authz}"
 ```
 
-### Clone the whole repo
-It's also fine to clone the whole repo, but only if you want ALL the other stuff too. May add extra stuff you don't want or need (now, or in the future)
+After this is complete, you should have two folders in your home directory: `.demo-authz-git-src` and `demo-authz`. If you modified the destination folder, your folder name will be different.  The remainder of these instructions assume you used the default locations.  
+
+## 2 - Run Initial Setup Script
+
+The setup.sh script is designed to validate system prerequisites, and to set default configuration options that the demo scripts will need going forward.
+
+**Run these commands to execute the initial setup and prerequisites script:**
 
 ```bash
-REPO_URL=https://github.com/BeardedPrincess/cybr.git
-REPO_BRANCH=main
-DEST_FOLDER=${HOME}/cybr-tools  ## Change this path if you want a different folder
-git clone --depth 1 --branch ${REPO_BRANCH} ${REPO_URL} ${DEST_FOLDER}
+cd ~/demo-authz
+/bin/bash < ./_initialSetup.sh
 ```
-
-
