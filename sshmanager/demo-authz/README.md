@@ -48,6 +48,28 @@ ln -s "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}/sshmanager/demo-authz"
 
 After this is complete, you should have two folders in your home directory: `.demo-authz-git-src` and `demo-authz`. If you modified the destination folder, your folder name will be different.  The remainder of these instructions assume you used the default locations.  
 
+## 3 - Configure your environment specific environment variables
+
+1. Copy `.env-SAMPLE` to `.env`
+
+    **Run this command to create a starter `.env` file:**
+
+    ```bash
+    cp ${DEMO_ROOT:-${HOME}/demo-authz}/.env-SAMPLE ${DEMO_ROOT:-${HOME}/demo-authz}/.env
+    ```
+
+2. Edit `.env` and set appropriate values for your environment
+ 
+
+The setup.sh script is designed to validate system prerequisites, and to set default configuration options that the demo scripts will need going forward.
+
+**Run these commands to execute the initial setup and prerequisites script:**
+
+```bash
+cd ~/demo-authz
+/bin/bash -f ./_initialSetup.sh
+```
+
 ## 2 - Run Initial Setup Script
 
 The setup.sh script is designed to validate system prerequisites, and to set default configuration options that the demo scripts will need going forward.
@@ -56,5 +78,5 @@ The setup.sh script is designed to validate system prerequisites, and to set def
 
 ```bash
 cd ~/demo-authz
-/bin/bash < ./_initialSetup.sh
+/bin/bash -f ./_initialSetup.sh
 ```
