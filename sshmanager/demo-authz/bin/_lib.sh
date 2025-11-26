@@ -37,7 +37,6 @@ warn () {
   if [[ -z "${FORCE_CONTINUE:-}" ]]; then
     printf "\n${YELLOW}Continue anyway?${RESET} [y/N]: " >&2 
     read -r -n 1
-    echo ## Newline
     if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
         die "Aborted by user."
     fi
@@ -54,8 +53,11 @@ die () {
 }
 
 check_global_prereqs() {
+  ## Docker checks
   [ -x ${DOCKER_BIN} ] || die "Docker binary not found or not executable: ${DOCKER_BIN}"
   debug "Using docker cmd '${BOLD}${DOCKER_CMD}${RESET}'"
+  docker_info=$(${DOCKER_CMD} -v 2>&1) || die "Docker does not appear to be running or current user cannot access it. Please ensure Docker is installed, running, and that the current user has permission to access the Docker daemon."
+  debug "docker version': '${BOLD}${docker_info}${RESET}'"
 }
 
 common_init () {
@@ -66,19 +68,19 @@ common_init () {
     scriptRoot='.'
   fi
   # Load environment variables
-  if [ -f ${scriptRoot}/.env ]; then
-    debug "Sourcing environment from ${scriptRoot}/.env"
-    source ${scriptRoot}/.env
-  else
-    die "${scriptRoot}/.env not found, cannot continue"
-  fi
-
+  
+  [ ! -f ${scriptRoot}/.env ] && die "${scriptRoot}/.env not found, cannot continue"
+  debug "Sourcing environment from ${scriptRoot}/.env"  
+  source ${scriptRoot}/.env
+  
   # Ensure required variables have been set
   requiredVars=(TPP_HOST TPP_USER TPP_PASS VOL_DIR DOCKER_BIN DOCKER_CMD DOCKER_IMAGE_NAME)
   missingVars=""
   for var in "${requiredVars[@]}"; do
     if [ -z "${!var:-}" ]; then
       missingVars="${missingVars}\n\tMissing required variable: '${var}'"
+    else
+      [ "${var}" != "TPP_PASS" ] && debug "  ${var}='${!var}'"  # Don't print passwords
     fi
   done
   if [ -n "${missingVars}" ]; then
@@ -273,7 +275,7 @@ get_root_cert_from() {
     summary="$(_cert_summary "${cert_file}")" || summary="(unable to parse cert ${cert_file})"
 
     if [ "${idx}" -eq $((count - 1)) ]; then
-      info "Found root certificate, updating ${MAGENTA}${output_file}${RESET}: ${summary}"
+      info "Found root certificate, updating '${MAGENTA}${output_file}${RESET}'.  Cert details:${DIM}${summary}${RESET}"
     else
       debug "Chain certificate [${idx}]: ${summary}"
     fi
