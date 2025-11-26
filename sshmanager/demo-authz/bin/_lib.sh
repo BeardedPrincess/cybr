@@ -55,6 +55,7 @@ die () {
 
 check_global_prereqs() {
   [ -x ${DOCKER_BIN} ] || die "Docker binary not found or not executable: ${DOCKER_BIN}"
+  debug "Using docker cmd '${BOLD}${DOCKER_CMD}${RESET}'"
 }
 
 common_init () {
