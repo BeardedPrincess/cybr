@@ -1,5 +1,9 @@
-# Always ignore .env files
+# Ignore env files
+*.env
 .env
 
-# Ignore all tmp files
-tmp/*
+
+# Ignore any folder named "tmp" (in root or subfolders)
+tmp/
+**/tmp/
+

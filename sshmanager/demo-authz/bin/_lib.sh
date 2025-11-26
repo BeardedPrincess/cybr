@@ -71,7 +71,7 @@ common_init () {
   fi
 
   # Ensure required variables have been set
-  requiredVars=(VOL_DIR TPP_HOST TPP_USER TPP_PASS)
+  requiredVars=(TPP_HOST TPP_USER TPP_PASS VOL_DIR DOCKER_BIN DOCKER_CMD DOCKER_IMAGE_NAME)
   missingVars=""
   for var in "${requiredVars[@]}"; do
     if [ -z "${!var:-}" ]; then
