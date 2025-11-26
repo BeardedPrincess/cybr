@@ -27,8 +27,11 @@ elif [ "${SHELL}" = "/bin/zsh" ]; then
     info "Added ${DEMO_ROOT}/bin to PATH in ~/.zshrc for future sessions. Restart your shell or run: '${BOLD}source ~/.zshrc${RESET}'")
 fi
 
-${CMD_FIND:-$(command -v find)} "${DEMO_ROOT}/bin" "${PWD}" -type f -iname "*.sh" -exec chmod 0755 {} +
+${CMD_FIND:-$(command -v find)} "${DEMO_ROOT}/bin" -type f -iname "*.sh" -exec chmod 0755 {} +
 debug "Set execute permissions on scripts in ${DEMO_ROOT}/bin/"
+
+${CMD_FIND:-$(command -v find)} "${VOL_ROOT}/bin" -type f -iname "*.sh" -exec chmod 0755 {} +
+debug "Set execute permissions on scripts in ${VOL_ROOT}/bin/"
 
 # Set variables used in this script
 ROOT_PEM_FILE="${DEMO_ROOT}/tmp/root-ca-bundle.pem"
