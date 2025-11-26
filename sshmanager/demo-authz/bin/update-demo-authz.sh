@@ -12,10 +12,10 @@ GIT_CMD="${GIT_CMD:-$(command -v git)}"
 
 echo -e "\033[37m[INFO]\033[0mPulling latest updates from git repository..." >&2
 pushd "${SCRIPT_ROOT}" > /dev/null 2>&1
-out=$(${GIT_CMD} pull 2>&1) || echo -e "\033[33m[WARN]\t..failed to pull updates from git: \n${DIM}\t$out${RESET}" >&2
+out=$(${GIT_CMD} pull 2>&1) || echo -e "\033[33m[WARN]\t..failed to pull updates from git: \n\033[2m\t${out}\033[0m" >&2
 popd > /dev/null 2>&1
 
-source "$(dirname "$(realpath "${0}")")/lib/_lib.sh" 
+source "${SCRIPT_ROOT}/lib/_lib.sh" 
 common_init
 
 # Add the script bin to the path if it's not already there
