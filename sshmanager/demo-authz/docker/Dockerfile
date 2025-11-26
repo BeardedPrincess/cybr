@@ -5,10 +5,10 @@ RUN mkdir /run/sshd /usr/local/share/ca-certificates/extra /etc/skel/.ssh
 RUN touch /etc/skel/.ssh/authorized_keys && chmod 644 /etc/skel/.ssh/authorized_keys
 COPY src/sshd_config /etc/ssh/sshd_config
 COPY src/ssh_config /etc/ssh/ssh_config
-ADD ../root-ca-bundle.pem /usr/share/ca-certificates/extra/root-ca-bundle.pem
+ADD ../tmp/root-ca-bundle.pem /usr/share/ca-certificates/extra/root-ca-bundle.pem
 RUN echo "extra/root-ca-bundle.pem" >> /etc/ca-certificates.conf && /usr/sbin/update-ca-certificates
 
-COPY crontab /etc/crontab
+COPY src/crontab /etc/crontab
 RUN chmod 0644 /etc/crontab
 RUN crontab /etc/crontab
 

@@ -7,7 +7,8 @@
 # Usage: /bin/sh _initialSetup.sh
 set -euo pipefail
 
-source bin/_lib.sh 
+source "${DEMO_ROOT}/bin/_lib.sh" 
 common_init
 
-get_root_cert_from "https://jhtpp253.lab.securafi.net" "root_cert.pem"
+mkdir -p "${DEMO_ROOT}/tmp"
+get_root_cert_from "https://jhtpp253.lab.securafi.net" "${DEMO_ROOT}/tmp/root-ca-bundle.pem"

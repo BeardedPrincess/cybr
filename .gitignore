@@ -1,0 +1,5 @@
+# Always ignore .env files
+.env
+
+# Ignore all tmp files
+tmp/*
