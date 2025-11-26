@@ -30,8 +30,8 @@ fi
 ${CMD_FIND:-$(command -v find)} "${DEMO_ROOT}/bin" -type f -iname "*.sh" -exec chmod 0755 {} +
 debug "Set execute permissions on scripts in ${DEMO_ROOT}/bin/"
 
-${CMD_FIND:-$(command -v find)} "${VOL_ROOT}/bin" -type f -iname "*.sh" -exec chmod 0755 {} +
-debug "Set execute permissions on scripts in ${VOL_ROOT}/bin/"
+${CMD_FIND:-$(command -v find)} "${VOL_DIR}/bin" -type f -iname "*.sh" -exec chmod 0755 {} +
+debug "Set execute permissions on scripts in ${VOL_DIR}/bin/"
 
 # Set variables used in this script
 ROOT_PEM_FILE="${DEMO_ROOT}/tmp/root-ca-bundle.pem"

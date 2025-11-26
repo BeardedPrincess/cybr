@@ -39,9 +39,9 @@ Clone this folder from the Github repo into a directory owned by your user accou
 **Run these commands to clone this repo:**
 
 ```bash
-git clone --depth 1 \
-  "${BP_REPO_URL:-https://github.com/BeardedPrincess/cybr.git}" \
-  "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}" && \
+BP_REPO_URL="${BP_REPO_URL:-https://github.com/BeardedPrincess/cybr.git}"
+# BP_REPO_URL="${BP_REPO_URL:-ssh://git@github.com/BeardedPrincess/cybr.git}"
+git clone --depth 1 "${BP_REPO_URL}" "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}" && \
 ln -s "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}/sshmanager/demo-authz" \
   "${DEMO_ROOT:-${HOME}/demo-authz}"
 ```
