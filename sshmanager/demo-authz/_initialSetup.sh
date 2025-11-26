@@ -7,7 +7,7 @@
 # Usage: /bin/sh _initialSetup.sh
 set -euo pipefail
 
-source "${DEMO_ROOT}/bin/_lib.sh" 
+source "${DEMO_ROOT:-${HOME}/demo-authz}/bin/_lib.sh" 
 common_init
 
 mkdir -p "${DEMO_ROOT}/tmp"
