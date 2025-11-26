@@ -34,10 +34,10 @@ done
 
 # Remove old directories
 if [ -d "${VOL_DIR}/servers" ]; then
-  rm -r "${VOL_DIR}/servers"/*
+  out=$(rm -r "${VOL_DIR}/servers"/* 2>&1) || debug "Failed to remove old server directories: ${out}"
 fi
 if [ -d "${VOL_DIR}/logs" ]; then
-  rm -r "${VOL_DIR}/logs"/*
+  out=$(rm -r "${VOL_DIR}/logs"/* 2>&1) || debug "Failed to remove old log directories: ${out}"
 fi
 
 FILE_SERVERNAMES="${SCRIPT_ROOT}/res/servernames.txt"

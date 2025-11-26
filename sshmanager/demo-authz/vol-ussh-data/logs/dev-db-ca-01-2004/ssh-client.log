@@ -1,0 +1,12 @@
+dev-db-ca-01-2004	 Checking /ussh-data/servers for other hosts
+dev-db-ca-01-2004	 Found 4 other hosts
+dev-db-ca-01-2004	 Check target host 'dev-db-eu-03-2002'
+dev-db-ca-01-2004	 Found 0 users on new target host dev-db-eu-03-2002
+dev-db-ca-01-2004	 Check target host 'dev-web-ca-02-2000'
+dev-db-ca-01-2004	 Found 0 users on new target host dev-web-ca-02-2000
+dev-db-ca-01-2004	 Check target host 'dev-web-ca-03-2003'
+dev-db-ca-01-2004	 Found 0 users on new target host dev-web-ca-03-2003
+dev-db-ca-01-2004	 Check target host 'prd-db-ca-03-2001'
+dev-db-ca-01-2004	 Found 0 users on new target host prd-db-ca-03-2001
+dev-db-ca-01-2004	 Found 1 targets
+dev-db-ca-01-2004	 Targeting user 'svc_appuser' on host 'dev-db-eu-03-2002'

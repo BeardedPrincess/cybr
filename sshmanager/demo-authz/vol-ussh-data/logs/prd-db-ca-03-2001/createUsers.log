@@ -1,0 +1,97 @@
+/ussh-data/servers/prd-db-ca-03-2001/privateKeys
+Creating user svc_systems
+Creating user: svc_systems
+Generating public/private ecdsa key pair.
+Your identification has been saved in /home/svc_systems/.ssh/id_ecdsa
+Your public key has been saved in /home/svc_systems/.ssh/id_ecdsa.pub
+The key fingerprint is:
+SHA256:b0/We4TXjWLu3evYGLy40FRyEIm+gjP8gbdxSoiBNIQ svc_systems@unknown_host
+The key's randomart image is:
++---[ECDSA 256]---+
+|o.        .oo    |
+|Eo       . ..    |
+|. o     .  . o   |
+| . .     .  +    |
+|    + + S ..   oo|
+|   . B * +o +.o =|
+|      * B.o+o+.o |
+|       + ..+o.*o.|
+|           ++++=o|
++----[SHA256]-----+
+Creating user svc_cache
+Creating user: svc_cache
+Generating public/private ecdsa key pair.
+Your identification has been saved in /home/svc_cache/.ssh/id_ecdsa
+Your public key has been saved in /home/svc_cache/.ssh/id_ecdsa.pub
+The key fingerprint is:
+SHA256:R1G6yYH3Z62SY3PxiKVHC2zHS68Nw/lgj2GTR3Q63Y4 svc_cache@unknown_host
+The key's randomart image is:
++---[ECDSA 256]---+
+|          ...    |
+|         . o     |
+|        . =     o|
+|         + * . =o|
+|        S = = % =|
+|         . . & / |
+|            O E =|
+|           . O & |
+|              o +|
++----[SHA256]-----+
+Creating user svc_messaging
+Creating user: svc_messaging
+Generating public/private ecdsa key pair.
+Your identification has been saved in /home/svc_messaging/.ssh/id_ecdsa
+Your public key has been saved in /home/svc_messaging/.ssh/id_ecdsa.pub
+The key fingerprint is:
+SHA256:Kg2ci0kCXUfnCgnUDgGN5HptzqGiBBXNSoSyPcob+n0 svc_messaging@unknown_host
+The key's randomart image is:
++---[ECDSA 256]---+
+|oO*=..o .        |
+|=.+++o o         |
+|o=o+o   .        |
+|+.+o.o .         |
+|=.o.B . S        |
+|o* B = .         |
+|o.* = o          |
+|+o . .E          |
+|... ..           |
++----[SHA256]-----+
+Creating user svc_clouduser
+Creating user: svc_clouduser
+Generating public/private ecdsa key pair.
+Your identification has been saved in /home/svc_clouduser/.ssh/id_ecdsa
+Your public key has been saved in /home/svc_clouduser/.ssh/id_ecdsa.pub
+The key fingerprint is:
+SHA256:S0Rv8QGDEOnBbEHnHw/kCLCluYn7fG7D6Geum5Mgbbw svc_clouduser@unknown_host
+The key's randomart image is:
++---[ECDSA 256]---+
+|    .=B=o.=..    |
+|     =*=.= + .   |
+|    +o .+ * .    |
+|   . o.. o +     |
+| o. o   S . .    |
+|. =.   . .       |
+| o.o +  .        |
+|  Eo+.B          |
+|   .B@o.         |
++----[SHA256]-----+
+Creating user dgreen
+Creating user: dgreen
+Generating public/private ecdsa key pair.
+Your identification has been saved in /home/dgreen/.ssh/id_ecdsa
+Your public key has been saved in /home/dgreen/.ssh/id_ecdsa.pub
+The key fingerprint is:
+SHA256:brckprwug3dz+O/BqoAU4ZkFL93fQF5+Gh2JvCArLGI dgreen@unknown_host
+The key's randomart image is:
++---[ECDSA 256]---+
+|  o..   ......   |
+| . B ..o.oo...   |
+|  *.o .oo.o.o    |
+|.E.oo .. o.+     |
+|.... .  S o      |
+| . .   . .       |
+|  ...  .= =      |
+|  . +o++.= o     |
+|   . =**oo+      |
++----[SHA256]-----+
+User creation complete.

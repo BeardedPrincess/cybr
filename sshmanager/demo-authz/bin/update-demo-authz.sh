@@ -33,6 +33,8 @@ debug "Set execute permissions on scripts in ${DEMO_ROOT}/bin/"
 ${CMD_FIND:-$(command -v find)} "${VOL_DIR}/bin" -type f -iname "*.sh" -exec chmod 0755 {} +
 debug "Set execute permissions on scripts in ${VOL_DIR}/bin/"
 
+chmod 0600 "${SCRIPT_ROOT}/res/.ssh/ansible.key"
+
 # Set variables used in this script
 ROOT_PEM_FILE="${DEMO_ROOT}/tmp/root-ca-bundle.pem"
 mkdir -p "${DEMO_ROOT}/tmp"
