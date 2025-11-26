@@ -16,7 +16,7 @@ You may override some of the installation details by setting any of the followin
 
 | Variable               | Default Value                                 |
 |------------------------|-----------------------------------------------|
-| **DEMO_ROOT**     | `${HOME}/demo-authz`                          |
+| **DEMO_ROOT**          | `${HOME}/demo-authz`                          |
 | **BP_GIT_DEST_FOLDER** | `${HOME}/.demo-authz-git-src`                 |
 | **BP_REPO_URL**        | `https://github.com/BeardedPrincess/cybr.git` |
 | **BP_REPO_BRANCH**     | `main`                                        |
@@ -50,25 +50,18 @@ After this is complete, you should have two folders in your home directory: `.de
 
 ## 3 - Configure your environment specific environment variables
 
-1. Copy `.env-SAMPLE` to `.env`
+- Copy `bin/.env-SAMPLE` to `bin/.env`
 
     **Run this command to create a starter `.env` file:**
 
     ```bash
-    cp ${DEMO_ROOT:-${HOME}/demo-authz}/.env-SAMPLE ${DEMO_ROOT:-${HOME}/demo-authz}/.env
+    cp ${DEMO_ROOT:-${HOME}/demo-authz}/bin/.env-SAMPLE ${DEMO_ROOT:-${HOME}/demo-authz}/bin/.env
     ```
 
-2. Edit `.env` and set appropriate values for your environment
- 
+- Edit `/bin/.env` and set appropriate values for your environment
 
-The setup.sh script is designed to validate system prerequisites, and to set default configuration options that the demo scripts will need going forward.
+    **NOTE:** The variables `TPP_HOST`, `TPP_USER`, and `TPP_PASS` should be the only settings required for most installations.
 
-**Run these commands to execute the initial setup and prerequisites script:**
-
-```bash
-cd ~/demo-authz
-/bin/bash -f ./_initialSetup.sh
-```
 
 ## 2 - Run Initial Setup Script
 
@@ -78,5 +71,5 @@ The setup.sh script is designed to validate system prerequisites, and to set def
 
 ```bash
 cd ~/demo-authz
-/bin/bash -f ./_initialSetup.sh
+/bin/bash -f bin/update-demo-authz.sh
 ```

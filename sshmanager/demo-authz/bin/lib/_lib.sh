@@ -35,8 +35,9 @@ info () {
 warn () {
   echo -e "${YELLOW}[WARN]${RESET} $*" >&2
   if [[ -z "${FORCE_CONTINUE:-}" ]]; then
-    printf "\n${YELLOW}Continue anyway?${RESET} [y/N]: " >&2 
+    printf "\n${YELLOW}${BOLD}Continue anyway?${RESET} [y/N]: " >&2 
     read -r -n 1
+    echo >&2;
     if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
         die "Aborted by user."
     fi
@@ -53,11 +54,13 @@ die () {
 }
 
 check_global_prereqs() {
+  info "Checking global prerequisites..."
   ## Docker checks
   [ -x ${DOCKER_BIN} ] || die "Docker binary not found or not executable: ${DOCKER_BIN}"
-  debug "Using docker cmd '${BOLD}${DOCKER_CMD}${RESET}'"
+  
   docker_info=$(${DOCKER_CMD} -v 2>&1) || die "Docker does not appear to be running or current user cannot access it. Please ensure Docker is installed, running, and that the current user has permission to access the Docker daemon."
-  debug "docker version': '${BOLD}${docker_info}${RESET}'"
+  info "\t${GREEN}[OK]${RESET}\tDocker cli version: '${BOLD}${docker_info}${RESET}'"
+  debug "\tDOCKER_CMD='${BOLD}${DOCKER_CMD}${RESET}'"
 }
 
 common_init () {
@@ -67,63 +70,36 @@ common_init () {
   if [ "${PWD}" == "${scriptRoot}" ]; then    
     scriptRoot='.'
   fi
-  # Load environment variables
-  
-  [ ! -f ${scriptRoot}/.env ] && die "${scriptRoot}/.env not found, cannot continue"
-  debug "Sourcing environment from ${scriptRoot}/.env"  
+
+  info "Sourcing environment variables from ${scriptRoot}/.env"  
+  if [ ! -f ${scriptRoot}/.env ]; then
+    if [ ! -f ${scriptRoot}/.env-SAMPLE ]; then
+      die "${scriptRoot}/.env and ${scriptRoot}/.env-SAMPLE not found, cannot continue."
+    fi
+    cp ${scriptRoot}/.env-SAMPLE ${scriptRoot}/.env
+    die "${scriptRoot}/.env did not exist, it has been created from .env-SAMPLE. Please review, update, and try again."
+  fi
+
   source ${scriptRoot}/.env
   
+  # debug "\tDEMO_ROOT='${DEMO_ROOT:-}'"
   # Ensure required variables have been set
-  requiredVars=(TPP_HOST TPP_USER TPP_PASS VOL_DIR DOCKER_BIN DOCKER_CMD DOCKER_IMAGE_NAME)
+  requiredVars=(TPP_HOST TPP_USER TPP_PASS SCRIPT_ROOT DEMO_ROOT VOL_DIR DOCKER_BIN DOCKER_CMD DOCKER_IMAGE_NAME)
   missingVars=""
   for var in "${requiredVars[@]}"; do
     if [ -z "${!var:-}" ]; then
       missingVars="${missingVars}\n\tMissing required variable: '${var}'"
     else
-      [ "${var}" != "TPP_PASS" ] && debug "  ${var}='${!var}'"  # Don't print passwords
+      [ "${var}" != "TPP_PASS" ] && debug "\t${var}='${!var}'"  # Don't print passwords
     fi
   done
+  
   if [ -n "${missingVars}" ]; then
     echo -e "${missingVars}"
     exit 1
   fi
 
-  # Set script root
-  scriptRoot=${SCRIPT_DIR:-$(dirname "$(realpath "${0}")")}
-  if [ "${PWD}" == "${scriptRoot}" ]; then    
-    scriptRoot='.'
-  fi
-
-  # Load environment variables
-  if [ -f ${scriptRoot}/.env ]; then
-    debug "Sourcing environment from ${scriptRoot}/.env"
-    source ${scriptRoot}/.env
-  else
-  echo -e "${RED}[ERROR] ${scriptRoot}/.env not found, cannot continue${RESET}"
-  exit 1
-  fi
-
-  # Ensure required variables have been set
-  requiredVars=(VOL_DIR TPP_HOST TPP_USER TPP_PASS)
-  missingVars=""
-  for var in "${requiredVars[@]}"; do
-  if [ -z "${!var:-}" ]; then
-      set missingVars = "${missingVars}\nERROR: Required variable '${var}' is not set, cannot continue"
-  fi
-  done
-  if [ -n "${missingVars}" ]; then
-  echo -e "${missingVars}"
-  exit 1
-  fi
-
-
-
-  debug "Loaded demo_admin/_lib.sh successfully"
-  debug "  VOL_DIR='${VOL_DIR}'"
-  debug "  TPP_HOST='${TPP_HOST}'"
-  debug "  TPP_USER='${TPP_USER}'"
-  debug "  TPP_PASS='******************'"  # Don't print passwords
-
+  check_global_prereqs
 }
 
 get_root_cert_from() {
