@@ -9,8 +9,15 @@ set -euo pipefail
 
 source "${DEMO_ROOT:-${HOME}/demo-authz}/bin/_lib.sh" 
 common_init
+check_global_prereqs
+
+# Set variables used in this script
+ROOT_PEM_FILE="${DEMO_ROOT}/tmp/root-ca-bundle.pem"
+
+# Installation pre-requisites
+
 
 mkdir -p "${DEMO_ROOT}/tmp"
-get_root_cert_from "https://jhtpp253.lab.securafi.net" "${DEMO_ROOT}/tmp/root-ca-bundle.pem"
+get_root_cert_from "https://jhtpp253.lab.securafi.net" "${ROOT_PEM_FILE}"
 
 ${DOCKER_CMD} build -t "${DOCKER_IMAGE_NAME}" -f "${DEMO_ROOT}/docker/Dockerfile" "${DEMO_ROOT}/docker"

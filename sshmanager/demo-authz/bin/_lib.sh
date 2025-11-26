@@ -53,9 +53,11 @@ die () {
   exit 1
 }
 
+check_global_prereqs() {
+  [ -x ${DOCKER_BIN} ] || die "Docker binary not found or not executable: ${DOCKER_BIN}"
+}
+
 common_init () {
-
-
   debug "Running common_init from bin/_lib.sh"
   # Set script root
   scriptRoot=$(dirname "$(realpath "${0}")")
@@ -88,6 +90,7 @@ common_init () {
   if [ "${PWD}" == "${scriptRoot}" ]; then    
     scriptRoot='.'
   fi
+
   # Load environment variables
   if [ -f ${scriptRoot}/.env ]; then
     debug "Sourcing environment from ${scriptRoot}/.env"
@@ -121,13 +124,20 @@ common_init () {
 }
 
 get_root_cert_from() {
+  
   url="$1"
   debug "get_root_cert_from(): called with URL '${url}' and output file '$2'"
   [ -z "$url" ] && die "get_root_cert_from(): missing URL/host parameter"
+  info "Attempting automatic retrieval and update of root PEM bundle for '${MAGENTA}${url}${RESET}'"
 
+  # Ensure openssl is installed
+  OPENSSL_CMD="${OPENSSL_CMD:-$(command -v openssl)}" || debug "get_root_cert_from(): openssl not found in PATH"
+  
   output_file="$2"
   [ -z "$output_file" ] && die "get_root_cert_from(): missing output file parameter"
-  [ -f "$output_file" ] && warn "get_root_cert_from(): output file '${output_file}' already exists. It will be overwritten."
+  [ -f "$output_file" ] && [ -x "${OPENSSL_CMD}" ] && warn "get_root_cert_from(): trust bundle '${MAGENTA}${output_file}${RESET}' already exists. It will be overwritten."
+  [ -f "$output_file" ] && [ ! -x "${OPENSSL_CMD}" ] && warn "get_root_cert_from(): trust bundle '${MAGENTA}${output_file}${RESET}' already exists but openssl is not available to update it." && return
+  [ ! -f "$output_file" ] && [ ! -x "${OPENSSL_CMD}" ] && die "get_root_cert_from(): trust bundle '${MAGENTA}${output_file}${RESET}' does not exist and openssl is not available to create it."
 
   debug "get_root_cert_from(): resolving endpoint from '${url}'"
 
@@ -157,20 +167,20 @@ get_root_cert_from() {
     cert_file="$1"
     [ -f "${cert_file}" ] || return 1
 
-    subj=$(openssl x509 -in "${cert_file}" -noout -subject 2>/dev/null | sed 's/^subject= *//')
-    issuer=$(openssl x509 -in "${cert_file}" -noout -issuer 2>/dev/null | sed 's/^issuer= *//')
-    serial=$(openssl x509 -in "${cert_file}" -noout -serial 2>/dev/null | sed 's/^serial= *//')
-    fp=$(openssl x509 -in "${cert_file}" -noout -fingerprint -sha1 2>/dev/null \
+    subj=$(${OPENSSL_CMD} x509 -in "${cert_file}" -noout -subject 2>/dev/null | sed 's/^subject= *//')
+    issuer=$(${OPENSSL_CMD} x509 -in "${cert_file}" -noout -issuer 2>/dev/null | sed 's/^issuer= *//')
+    serial=$(${OPENSSL_CMD} x509 -in "${cert_file}" -noout -serial 2>/dev/null | sed 's/^serial= *//')
+    fp=$(${OPENSSL_CMD} x509 -in "${cert_file}" -noout -fingerprint -sha1 2>/dev/null \
          | sed 's/^.*Fingerprint=//; s/^SHA1 Fingerprint=//')
-    start=$(openssl x509 -in "${cert_file}" -noout -startdate 2>/dev/null | sed 's/^notBefore=//')
-    end=$(openssl x509 -in "${cert_file}" -noout -enddate 2>/dev/null | sed 's/^notAfter=//')
+    start=$(${OPENSSL_CMD} x509 -in "${cert_file}" -noout -startdate 2>/dev/null | sed 's/^notBefore=//')
+    end=$(${OPENSSL_CMD} x509 -in "${cert_file}" -noout -enddate 2>/dev/null | sed 's/^notAfter=//')
 
     printf '\n\tSubject="%s"\n\tIssuer="%s"\n\tSerial="%s"\n\tThumbprint(SHA1)="%s"\n\tValidFrom="%s"\n\tValidTo="%s"' \
       "${subj}" "${issuer}" "${serial}" "${fp}" "${start}" "${end}"
   }
 
   # Get leaf certificate
-  if ! echo | openssl s_client -showcerts -servername "${host}" -connect "${hostport}" 2>/dev/null \
+  if ! echo | ${OPENSSL_CMD} s_client -showcerts -servername "${host}" -connect "${hostport}" 2>/dev/null \
       | awk '/BEGIN CERTIFICATE/{flag=1} flag{print} /END CERTIFICATE/{exit}' \
       > "${chain_prefix}-00.pem"
   then
@@ -193,8 +203,8 @@ get_root_cert_from() {
 
     [ -f "${cur}" ] || _cleanup_and_die "Expected certificate not found at ${cur}"
 
-    subject=$(openssl x509 -in "${cur}" -noout -subject 2>/dev/null | sed 's/^subject= *//')
-    issuer=$(openssl x509 -in "${cur}" -noout -issuer 2>/dev/null | sed 's/^issuer= *//')
+    subject=$(${OPENSSL_CMD} x509 -in "${cur}" -noout -subject 2>/dev/null | sed 's/^subject= *//')
+    issuer=$(${OPENSSL_CMD} x509 -in "${cur}" -noout -issuer 2>/dev/null | sed 's/^issuer= *//')
     
 
     # Self-signed? (subject == issuer)
@@ -206,7 +216,7 @@ get_root_cert_from() {
 
     # Try to get AIA CA Issuers URL
     aia_url=$(
-      openssl x509 -in "${cur}" -noout -text 2>/dev/null \
+      ${OPENSSL_CMD} x509 -in "${cur}" -noout -text 2>/dev/null \
         | awk '/CA Issuers - URI:/{print $NF; exit}' \
         | sed 's/URI://'
     )
@@ -228,8 +238,8 @@ get_root_cert_from() {
     fi
 
     # Try DER → PEM; if that fails, assume PEM input
-    if ! openssl x509 -inform der -in "${tmp_raw}" -out "${next}" 2>/dev/null; then
-      if ! openssl x509 -in "${tmp_raw}" -out "${next}" 2>/dev/null; then
+    if ! ${OPENSSL_CMD} x509 -inform der -in "${tmp_raw}" -out "${next}" 2>/dev/null; then
+      if ! ${OPENSSL_CMD} x509 -in "${tmp_raw}" -out "${next}" 2>/dev/null; then
         rm -f "${tmp_raw}"
         _cleanup_and_die "Failed to parse issuer certificate from ${aia_url}"
       fi
@@ -262,7 +272,7 @@ get_root_cert_from() {
     summary="$(_cert_summary "${cert_file}")" || summary="(unable to parse cert ${cert_file})"
 
     if [ "${idx}" -eq $((count - 1)) ]; then
-      info "Found root certificate: ${summary}"
+      info "Found root certificate, updating ${MAGENTA}${output_file}${RESET}: ${summary}"
     else
       debug "Chain certificate [${idx}]: ${summary}"
     fi
