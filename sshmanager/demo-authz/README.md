@@ -16,14 +16,14 @@ You may override some of the installation details by setting any of the followin
 
 | Variable               | Default Value                                 |
 |------------------------|-----------------------------------------------|
-| **BP_DEST_FOLDER**     | `${HOME}/demo-authz`                          |
+| **DEMO_ROOT**     | `${HOME}/demo-authz`                          |
 | **BP_GIT_DEST_FOLDER** | `${HOME}/.demo-authz-git-src`                 |
 | **BP_REPO_URL**        | `https://github.com/BeardedPrincess/cybr.git` |
 | **BP_REPO_BRANCH**     | `main`                                        |
 
 The purpose of each variable is outlined below:
 
-- **DEMO_FOLDER** :
+- **DEMO_ROOT** :
     > Which folder to place the main scripts used to control the authz demo. This is probably the one setting you may most likely want to customize. This will end up being a symbolic link to the sshmanager/demo-authz folder within the git source tree.
 - **BP_REPO_URL**        :
     > Which repo to clone. Change this to target a different git repo (possibly your own fork)
@@ -44,7 +44,7 @@ git clone --depth 1 \
   "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}"
 
 ln -s "${BP_GIT_DEST_FOLDER:-${HOME}/.demo-authz-git-src}/sshmanager/demo-authz" \
-  "${DEMO_FOLDER:-${HOME}/demo-authz}"
+  "${DEMO_ROOT:-${HOME}/demo-authz}"
 ```
 
 After this is complete, you should have two folders in your home directory: `.demo-authz-git-src` and `demo-authz`. If you modified the destination folder, your folder name will be different.  The remainder of these instructions assume you used the default locations.  
