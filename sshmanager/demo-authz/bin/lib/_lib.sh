@@ -84,7 +84,7 @@ common_init () {
   
   # debug "\tDEMO_ROOT='${DEMO_ROOT:-}'"
   # Ensure required variables have been set
-  requiredVars=(TPP_HOST TPP_USER TPP_PASS SCRIPT_ROOT DEMO_ROOT VOL_DIR DOCKER_BIN DOCKER_CMD DOCKER_IMAGE_NAME)
+  requiredVars=(TPP_HOST TPP_USER TPP_PASS AUTHZ_SRC SCRIPT_ROOT DEMO_ROOT VOL_DIR DOCKER_BIN DOCKER_CMD DOCKER_IMAGE_NAME)
   missingVars=""
   for var in "${requiredVars[@]}"; do
     if [ -z "${!var:-}" ]; then

@@ -18,6 +18,9 @@ popd > /dev/null 2>&1
 source "${SCRIPT_ROOT}/lib/_lib.sh" 
 common_init
 
+mkdir -p "${DEMO_ROOT}/tmp/$$"
+TMP_DIR="${DEMO_ROOT}/tmp/$$"
+
 # Add the script bin to the path if it's not already there
 if [ "${SHELL}" = "/bin/bash" ]; then
   grep -q "${DEMO_ROOT}/bin" "${HOME}/.bashrc" || (echo "PATH=\"${PATH}:${DEMO_ROOT}/bin\"" >> "${HOME}/.bashrc" && \
@@ -39,6 +42,10 @@ chmod 0600 "${SCRIPT_ROOT}/res/.ssh/ansible.key"
 ROOT_PEM_FILE="${DEMO_ROOT}/tmp/root-ca-bundle.pem"
 mkdir -p "${DEMO_ROOT}/tmp"
 
+info "Validating connection to TPP server at ${TPP_HOST}..."
+curl -o /dev/null -s -w "%{http_code}" --insecure "https://${TPP_HOST}/healthcheck" | grep -q "200" || \
+  die "Failed to connect to TPP server at ${TPP_HOST}. Please ensure the TPP host is correct and reachable."
+
 # Retrieve the root certificate
 get_root_cert_from "${TPP_HOST}" "${ROOT_PEM_FILE}"
 
@@ -48,3 +55,19 @@ cp "${ROOT_PEM_FILE}" "${DEMO_ROOT}/docker/src/root-ca-bundle.pem" > /dev/null
 info "Building Docker image '${DOCKER_IMAGE_NAME}'"
 out=$(${DOCKER_CMD} build -t "${DOCKER_IMAGE_NAME}" -f "${DEMO_ROOT}/docker/Dockerfile" "${DEMO_ROOT}/docker" 2>&1) || die "Failed to build Docker image: \n${DIM}${BOLD}$out${RESET}"
 info "\t Image '${DOCKER_IMAGE_NAME}' built successfully"
+
+# Download the latest authz-helper release
+info "Downloading latest authz-helper release from ${AUTHZ_SRC}..."
+
+curl -o "${TMP_DIR}/authz-helper-latest.tgz" -s --cacert "${ROOT_PEM_FILE}" \
+  "${AUTHZ_SRC}" || \
+  die "Failed to download authz-helper. Please check your network connection and the AUTHZ_SRC URL."
+
+tar -xzf "${TMP_DIR}/authz-helper-latest.tgz" -C "${TMP_DIR}" || \
+  die "Failed to extract authz-helper archive"
+
+cp "${TMP_DIR}/authzhelper" "${DEMO_ROOT}/tmp/authzhelper" || \
+  die "Failed to copy authz-helper binary to ${DEMO_ROOT}/tmp/"
+
+# Cleanup temporary files
+rm -rf "${TMP_DIR}"

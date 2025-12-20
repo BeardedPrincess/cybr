@@ -1,4 +1,6 @@
+# Demo AuthZ specific .gitignore file
 docker/src/root-ca-bundle.pem
 
 vol-usssh-data/logs/
 vol-usssh-data/servers/
+bin/res/authzhelper
