@@ -63,63 +63,58 @@ for i in ${!tgtIDs[@]}; do
   
   echo -e "${BOLD} =================  Installing latest authzhelper on ${BLUE}${tgtName}${RESET}${BOLD} =================${RESET}"
 
-  if ${sshCmd} -q [[ -f ${authZConf} ]]; then
+  if ${sshCmd} -q [[ -f ${authZConfDir}/.authzid ]]; then
     echo -e "${YELLOW}\t...Already installed on ${tgtName}${RESET}\n" 
     continue
   fi
 
   echo #newline
   printf "%b${YELLOW}\tCopy ${authZName} to ${authZBin}${RESET}"
-  ${scpCmd} ${authZSrc} ansible@localhost:${authZBin} > /dev/null 2>&1
+    ${scpCmd} ${authZSrc} ansible@localhost:${authZBin} > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tSet permissions to 0700 on ${authZBin}${RESET}"
-  ${sshCmd} "chmod 0700 ${authZBin}"
+    ${sshCmd} "chmod 0700 ${authZBin}" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tCreating config directory ${authZConfDir}${RESET}"
-  # echo "${sshCmd} 'mkdir -p ${authZConfDir}'"
-  ${sshCmd} "mkdir -p ${authZConfDir}"
+    ${sshCmd} "mkdir -p ${authZConfDir}" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tChanging owner to root:root on ${authZConfDir}${RESET}"
-  ${sshCmd} "chown root:root ${authZConfDir}"
+    ${sshCmd} "chown root:root ${authZConfDir}" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tSetting permissions to 0700 on ${authZConfDir}${RESET}"
-  ${sshCmd} "chmod 0700 ${authZConfDir}"
+    ${sshCmd} "chmod 0700 ${authZConfDir}" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
   
   printf "%b${YELLOW}\tCreating config file ${authZConfDir}/config.yml${RESET}"
-  ${scpCmd} ${authZConfigSrc} ansible@localhost:${authZConf} #> /dev/null 2>&1
-  ${sshCmd} "echo \"api-host: ${TPP_HOST}\" >> ${authZConf}" #> /dev/null 2>&1
-  ${sshCmd} "chmod 0600 ${authZConf}"
-  ${scpCmd} ${rootBundleSrc} ansible@localhost:${authZConfDir} #> /dev/null 2>&1
-
+    ${scpCmd} ${authZConfigSrc} ansible@localhost:${authZConf} > /dev/null 2>&1
+    ${sshCmd} "echo \"api-host: ${TPP_HOST}\" >> ${authZConf}" > /dev/null 2>&1
+    ${sshCmd} "chmod 0600 ${authZConf}" > /dev/null 2>&1
+    ${scpCmd} ${rootBundleSrc} ansible@localhost:${authZConfDir} > /dev/null 2>&1
+  printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tAuthorizing API grant for ${tgtName}${RESET}"
-  ${sshCmd} "${authZBin} authenticate --user ${TPP_USER} --password ${TPP_PASS}" 
-  # TODO: Check for errors?
-
-  ${sshCmd} "ls -laF ${authZConfDir}; cat ${authZConf}" #> /dev/null 2>&1
-  exit
+    ${sshCmd} "${authZBin} authenticate --user ${TPP_USER} --password ${TPP_PASS}" > /dev/null 2>&1
+    # TODO: Check for errors?
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tBacking up sshd_config${RESET}"
-  ${sshCmd} "cp /etc/ssh/sshd_config ${authZConfDir}"
+    ${sshCmd} "cp /etc/ssh/sshd_config ${authZConfDir}" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tUpdating sshd_config${RESET}"
-  ${scpCmd} ${sshdConf} ansible@localhost:/etc/ssh/sshd_config > /dev/null 2>&1
-  ${sshCmd} "chmod 0600 /etc/ssh/sshd_config"
+    ${scpCmd} ${sshdConf} ansible@localhost:/etc/ssh/sshd_config > /dev/null 2>&1
+    ${sshCmd} "chmod 0600 /etc/ssh/sshd_config" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
   
   printf "%b${YELLOW}\tRestarting SSHD${RESET}"
-  ${sshCmd} "/ussh-data/startSSHD.sh > /dev/null 2>&1"
+    ${sshCmd} "/ussh-data/bin/startSSHD.sh" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n\n\n"
-  
-  
-  #targetPorts=($(docker inspect --format '{{ (index (index .NetworkSettings.Ports "22/tcp") 0).HostPort }}'
+
+
 done
 
 

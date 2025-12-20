@@ -1,6 +1,6 @@
-ca-trust: /var/opt/cyberark/sshmanager/trusted-roots.pem
+ca-trust: /var/opt/cyberark/sshmanager/root-ca-bundle.pem
 AuthorizedKeysFile: .ssh/authorized_keys
 TrustedUserCAKeys: none
 AuthorizedPrincipalsFile: none
-log: /var/log/authzhelper.log
-debug: false
+log: /dev/stdout
+debug: true
