@@ -1,4 +1,5 @@
 #!/bin/bash
+umask 002
 source /tmp/.env
 
 echo -e "${hn}\t Checking ${hostsDir} for other hosts"

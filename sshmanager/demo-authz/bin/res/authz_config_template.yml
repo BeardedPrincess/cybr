@@ -1,0 +1,6 @@
+ca-trust: /var/opt/cyberark/sshmanager/trusted-roots.pem
+AuthorizedKeysFile: .ssh/authorized_keys
+TrustedUserCAKeys: none
+AuthorizedPrincipalsFile: none
+log: /var/log/authzhelper.log
+debug: false

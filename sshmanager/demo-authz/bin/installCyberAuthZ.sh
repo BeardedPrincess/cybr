@@ -7,38 +7,49 @@ scriptRoot=$(dirname "$(realpath "${0}")")
 source "$(dirname "$(realpath "${0}")")/lib/_lib.sh" 
 common_init
 
+RES_DIR="${SCRIPT_ROOT}/res"
+
 # AuthZHelper Source
 authZName='authzhelper'
-authZSrc="${scriptRoot}/${authZName}"
-authZConfigSrc="${scriptRoot}/authz_config"
-sshdConf="${scriptRoot}/sshd_config"
+authZSrc="${DEMO_ROOT}/tmp/${authZName}"
+authZConfigSrc="${RES_DIR}/authz_config_template.yml"
+rootBundleSrc="${DEMO_ROOT}/tmp/root-ca-bundle.pem"
+sshdConf="${RES_DIR}/sshd_config_template.conf"
 
 # Destinations for authZHelper
 authZBin="/usr/local/bin/${authZName}"
 authZConfDir="/var/opt/cyberark/sshmanager"
 authZConf="${authZConfDir}/config.yml"
 
-tgtIDs=($(/usr/bin/docker container ls -q --filter ancestor=ussh))
+tgtIDs=($(${DOCKER_CMD} container ls -q --filter ancestor=${DOCKER_IMAGE_NAME}))
 
 if [ ${#tgtIDs[@]} -gt 0 ]; then
-  echo "Installing on ${#tgtIDs[@]}"
+  info "Installing on ${#tgtIDs[@]} target host(s)..."
 else
-  echo "No targets running.. done"
+  info "No targets running. Start servers first with 'startServers.sh <num_servers>'"
   exit 0
 fi
 
 confirmAll=false
 
+if [ ! -f "${authZSrc}" ]; then
+  die "AuthZ Helper binary not found at expected location: ${DEMO_ROOT}/tmp/${authZName}. Please run 'update-demo-authz.sh' to download the latest version."
+fi
+
+if [ ! -f "${rootBundleSrc}" ]; then
+  die "Root CA bundle not found at expected location: ${DEMO_ROOT}/tmp/root-ca-bundle.pem. Please run 'update-demo-authz.sh' to download the latest version."
+fi
+
 for i in ${!tgtIDs[@]}; do
   tgtId=${tgtIDs[${i}]}
-  tgtName=$(docker inspect --format '{{ .Name }}' ${tgtId})
-  tgtPort=$(docker inspect --format '{{ (index (index .NetworkSettings.Ports "22/tcp") 0).HostPort }}' ${tgtId})
-  sshCmd="ssh -i ${scriptRoot}/ansible.key -p ${tgtPort} ansible@localhost"
-  scpCmd="scp -i ${scriptRoot}/ansible.key -P ${tgtPort}" 
+  tgtName=$(${DOCKER_CMD} inspect --format '{{ .Name }}' ${tgtId})
+  tgtPort=$(${DOCKER_CMD} inspect --format '{{ (index (index .NetworkSettings.Ports "22/tcp") 0).HostPort }}' ${tgtId})
+  sshCmd="ssh -i ${SCRIPT_ROOT}/res/.ssh/ansible.key -p ${tgtPort} ansible@localhost"
+  scpCmd="scp -i ${SCRIPT_ROOT}/res/.ssh/ansible.key -P ${tgtPort}" 
 
   if [ "${confirmAll}" = false ]; then
     # Get confirmation before installing
-    prompt="Install 'authZHelper' on ${tgtName}?"
+    prompt="Install CyberArk authzhelper on ${tgtName}?"
     read -p "${prompt} [y/n/a]" -n 1 -r
     echo ##Newline
 
@@ -76,22 +87,22 @@ for i in ${!tgtIDs[@]}; do
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tSetting permissions to 0700 on ${authZConfDir}${RESET}"
-  ${sshCmd} "chmod 777 ${authZConfDir}"
+  ${sshCmd} "chmod 0700 ${authZConfDir}"
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
   
   printf "%b${YELLOW}\tCreating config file ${authZConfDir}/config.yml${RESET}"
-  #${sshCmd} "echo 'api-host: jh-ssh-poc-tpp.lab.securafi.net' > ${authZConf}"
-  #${sshCmd} "echo 'api-host: jh-ssh-poc-tpp.lab.securafi.net' > ${authZConf}"
-  # echo "Running: ${scpCmd} ${authZConfigSrc}/config.yml ansbile@localhost:${authZConfDir}"
-  ${scpCmd} ${authZConfigSrc}/config.yml ansible@localhost:${authZConfDir} > /dev/null 2>&1
-  # ${scpCmd} ${authZConfigSrc}/.authzhelper_secret ansible@localhost:${authZConfDir}
-  ${scpCmd} ${authZConfigSrc}/securafiroot.pem ansible@localhost:${authZConfDir} > /dev/null 2>&1
-  # ${sshCmd} "cat /proc/sys/kernel/random/uuid > ${authZConfDir}/.authzid"
-  #${sshCmd} "chmod 0600 ${authZConf}"
-  #${sshCmd} "chmod -R 0600 ${authZConfDir}"
+  ${scpCmd} ${authZConfigSrc} ansible@localhost:${authZConf} #> /dev/null 2>&1
+  ${sshCmd} "echo \"api-host: ${TPP_HOST}\" >> ${authZConf}" #> /dev/null 2>&1
+  ${sshCmd} "chmod 0600 ${authZConf}"
+  ${scpCmd} ${rootBundleSrc} ansible@localhost:${authZConfDir} #> /dev/null 2>&1
 
-  ${sshCmd} "${authZBin} authenticate --user svc_authz --password password99! > /dev/null 2>&1"
-  # TODO: If failed, don't continue
+
+  printf "%b${YELLOW}\tAuthorizing API grant for ${tgtName}${RESET}"
+  ${sshCmd} "${authZBin} authenticate --user ${TPP_USER} --password ${TPP_PASS}" 
+  # TODO: Check for errors?
+
+  ${sshCmd} "ls -laF ${authZConfDir}; cat ${authZConf}" #> /dev/null 2>&1
+  exit
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
 
   printf "%b${YELLOW}\tBacking up sshd_config${RESET}"

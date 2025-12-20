@@ -1,4 +1,5 @@
 #!/bin/bash
+umask 002
 source /tmp/.env
 
 SSH_PID_LOC=/var/run/sshd.pid

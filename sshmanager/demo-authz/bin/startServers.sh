@@ -7,9 +7,16 @@ scriptRoot=$(dirname "$(realpath "${0}")")
 source "$(dirname "$(realpath "${0}")")/lib/_lib.sh" 
 common_init
 
+debug "Checking for already running containers..."
+# Get a list of running containers, based on our image
+image_ancestor=$(${DOCKER_CMD} images -q "${DOCKER_IMAGE_NAME}") > /dev/null 2>&1 || die "Failed to get image id for ${DOCKER_IMAGE_NAME}"
+running_ids=$(${DOCKER_CMD} container ps -q --filter ancestor=${image_ancestor}) || die "Failed to get running containers"
+[ -n "${running_ids}" ] && die "There are already servers running. Stop these with 'stopServers.sh' before starting new ones."
+
 # Check if an argument is provided
+inputValid=true
 while :; do
-  if [ ! -z "${1:-}" ]; then
+  if [ ! -z "${1:-}" ] && $inputValid; then
     NUM_SERVERS="${1}"
   elif [ -z "${NUM_SERVERS:-}" ]; then
     printf "\n${YELLOW}${BOLD}Number of servers to start [1-20]: ${RESET}" >&2 
@@ -19,31 +26,38 @@ while :; do
 
   # Must be numeric
   if ! [[ "$NUM_SERVERS" =~ ^[0-9]+$ ]]; then
-    printf "\n${YELLOW}${BOLD}\tPlease enter a numeric value [1-20]: ${RESET}" >&2 
+    printf "\n${RED}${BOLD}Number of servers must be a numeric value${RESET}" >&2 
+    inputValid=false
+    NUM_SERVERS=""
     continue
   fi
 
   # Must be between 1 and 20
   if [ "$NUM_SERVERS" -lt 1 ] || [ "$NUM_SERVERS" -gt 20 ]; then
-    printf "\n${YELLOW}${BOLD}\tPlease enter a value between 1 and 20: ${RESET}" >&2 
+    printf "\n${RED}${BOLD}Number of servers must be between 1 and 20${RESET}" >&2 
+    inputValid=false
+    NUM_SERVERS=""
     continue
   fi
-
   break
 done
 
 # Remove old directories
 if [ -d "${VOL_DIR}/servers" ]; then
-  out=$(rm -r "${VOL_DIR}/servers"/* 2>&1) || debug "Failed to remove old server directories: ${out}"
+  debug "Removing old server directories from: '${BOLD}${VOL_DIR}/servers${RESET}'"
+  out=$(rm -rf "${VOL_DIR}/servers"/* 2>&1) || debug "Failed to remove old server directories: ${out}"
 fi
 if [ -d "${VOL_DIR}/logs" ]; then
-  out=$(rm -r "${VOL_DIR}/logs"/* 2>&1) || debug "Failed to remove old log directories: ${out}"
+  debug "Removing old log directories from: '${BOLD}${VOL_DIR}/logs${RESET}'"
+  out=$(rm -rf "${VOL_DIR}/logs"/* 2>&1) || debug "Failed to remove old log directories: ${out}"
 fi
 
 FILE_SERVERNAMES="${SCRIPT_ROOT}/res/servernames.txt"
+debug "Loading server names from: '${BOLD}${FILE_SERVERNAMES}${RESET}'"
 [ -f "${FILE_SERVERNAMES}" ] || die "Unable to find servernames resource file: ${FILE_SERVERNAMES}"
 
-servernames=()
+
+declare -a servernames
 while read -r first _; do
   # Skip empty lines and lines whose first non-whitespace char is '#'
   [[ -z "${first}" || "${first}" == \#* ]] && continue
@@ -51,7 +65,6 @@ while read -r first _; do
   # Take only the first word on the line
   servernames+=("${first}")
 done < "${FILE_SERVERNAMES}"
-
 debug "Loaded server names from: '${BOLD}${FILE_SERVERNAMES}${RESET}'"
 
 declare -a used

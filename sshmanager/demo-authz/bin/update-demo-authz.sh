@@ -30,6 +30,10 @@ elif [ "${SHELL}" = "/bin/zsh" ]; then
     info "Added ${DEMO_ROOT}/bin to PATH in ~/.zshrc for future sessions. Restart your shell or run: '${BOLD}source ~/.zshrc${RESET}'")
 fi
 
+# Set group sticky on volume dir
+chmod g+s "${VOL_DIR}"
+debug "Set group sticky bit on volume directory: ${VOL_DIR}"
+
 ${CMD_FIND:-$(command -v find)} "${DEMO_ROOT}/bin" -type f -iname "*.sh" -exec chmod 0755 {} +
 debug "Set execute permissions on scripts in ${DEMO_ROOT}/bin/"
 

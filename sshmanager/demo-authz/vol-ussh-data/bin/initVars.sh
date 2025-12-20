@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+umask 002
+
 if [ -f /tmp/.env ]; then
   exit 0
 fi
@@ -29,7 +31,6 @@ echo "myHostDir=${myHostDir}" >> /tmp/.env
 
 if [ ! -d ${logDir} ]; then
   mkdir -p ${logDir} 
-  chmod 755 ${logDir}
   touch ${logDir}/connections.log
   chmod 666 ${logDir}/connections.log
 fi

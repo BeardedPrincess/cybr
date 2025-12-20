@@ -58,8 +58,8 @@ check_global_prereqs() {
   ## Docker checks
   [ -x ${DOCKER_BIN} ] || die "Docker binary not found or not executable: ${DOCKER_BIN}"
   
-  docker_info=$(${DOCKER_CMD} -v 2>&1) || die "Docker does not appear to be running or current user cannot access it. Please ensure Docker is installed, running, and that the current user has permission to access the Docker daemon."
-  info "\t${GREEN}[OK]${RESET}\tDocker cli version: '${BOLD}${docker_info}${RESET}'"
+  docker_info=$(${DOCKER_CMD} -v 2>&1) || die "${docker_info}\n\tDocker does not appear to be running or current user cannot access it. Please ensure Docker is installed, running, and that the current user has permission to access the Docker daemon."
+  debug "\t${GREEN}[OK]${RESET}\tDocker cli version: '${BOLD}${docker_info}${RESET}'"
   debug "\tDOCKER_CMD='${BOLD}${DOCKER_CMD}${RESET}'"
 }
 

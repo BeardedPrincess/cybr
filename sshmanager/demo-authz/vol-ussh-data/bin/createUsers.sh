@@ -2,6 +2,7 @@
 #
 # c=$(ls /home | wc -l); if [ $c -gt 2 ]; then exit 0; fi;
 #
+umask 002
 source /tmp/.env
 privKeys=${myHostDir}/privateKeys
 echo ${privKeys}
