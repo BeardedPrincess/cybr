@@ -24,7 +24,7 @@ You may override some of the installation details by setting any of the followin
 The purpose of each variable is outlined below:
 
 - **DEMO_ROOT** :
-    > Which folder to place the main scripts used to control the authz demo. This is probably the one setting you may most likely want to customize. This will end up being a symbolic link to the sshmanager/demo-authz folder within the git source tree.
+    > Which folder to place the main scripts used to control the authz demo. This is probably the one setting you likely want to customize. This will end up being a symbolic link to the sshmanager/demo-authz folder within the git source tree.
 - **BP_REPO_URL**        :
     > Which repo to clone. Change this to target a different git repo (possibly your own fork)
 - **BP_REPO_BRANCH**     :
@@ -63,7 +63,7 @@ After this is complete, you should have two folders in your home directory: `.de
     **NOTE:** The variables `TPP_HOST`, `TPP_USER`, and `TPP_PASS` should be the only settings required for most installations.
 
 
-## 2 - Run Initial Setup Script
+## 2 - Run Update Script (to *initialize* your environment)
 
 The setup.sh script is designed to validate system prerequisites, and to set default configuration options that the demo scripts will need going forward.
 
@@ -73,3 +73,4 @@ The setup.sh script is designed to validate system prerequisites, and to set def
 cd ~/demo-authz
 /bin/bash -f bin/update-demo-authz.sh
 ```
+

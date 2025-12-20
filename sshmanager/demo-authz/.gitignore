@@ -1,1 +1,4 @@
 docker/src/root-ca-bundle.pem
+
+vol-usssh-data/logs/
+vol-usssh-data/servers/

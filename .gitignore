@@ -7,3 +7,5 @@
 tmp/
 **/tmp/
 
+sshmanager/demo-authz/vol-ussh-data/logs/
+sshmanager/demo-authz/vol-ussh-data/servers/
