@@ -11,6 +11,85 @@ if [ -d ${privKeys} ]; then
   exit 0
 fi
 
+# Pick a random key type+params and generate it. Retries a few times in case
+# the chosen type is disallowed by local policy (FIPS, min RSA size, etc).
+gen_random_ssh_key() {
+  local user="$1"
+  local home="/home/${user}"
+  local sshdir="${home}/.ssh"
+  local authkeys="${sshdir}/authorized_keys"
+
+  # Add/remove specs as you like. Keep weak RSA sizes only if you expect them to work.
+  local -a specs=(
+    "ed25519"
+    "ed25519"
+    "ed25519"
+    "ecdsa:256"
+    "ecdsa:256"
+    "ecdsa:256"
+    "ecdsa:256"
+    "ecdsa:384"
+    "ecdsa:384"
+    "ecdsa:521"
+    "rsa:2048"
+    "rsa:2048"
+    "rsa:2048"
+    "rsa:2048"
+    "rsa:2048"
+    "rsa:2048"
+    "rsa:2048"
+    "rsa:2048"
+    "rsa:3072"
+    "rsa:3072"
+    "rsa:4096"
+    "rsa:4096"
+    "rsa:4096"
+    "rsa:1024"
+    "rsa:1024"
+    # "rsa:512"
+  )
+
+  local max_tries=6
+  local try=1
+
+  mkdir -p "$sshdir"
+  touch "$authkeys"
+
+  while (( try <= max_tries )); do
+    local spec="${specs[RANDOM % ${#specs[@]}]}"
+    local ktype="${spec%%:*}"
+    local bits=""
+    [[ "$spec" == *:* ]] && bits="${spec#*:}"
+
+    local label="$ktype"
+    [[ -n "$bits" ]] && label="${label}_${bits}"
+
+    local keyfile="${sshdir}/id_${label}"
+
+    # Build ssh-keygen args
+    local -a args=(-q -N "" -C "${user}@unknown_host" -f "$keyfile" -t "$ktype")
+    [[ -n "$bits" ]] && args+=(-b "$bits")
+
+    # Try generate. If it fails (policy, etc), retry with a different spec.
+    if ssh-keygen "${args[@]}" >/dev/null 2>&1; then
+      # Keep your existing behavior
+      chmod 644 "$authkeys"
+      cat "$keyfile" > "${privKeys}/${user}"
+      chmod 600 "${privKeys}/${user}"
+      chown "$user:$user" "${sshdir}/id_${label}"*
+      cat "${keyfile}.pub" >> "$authkeys"
+
+      echo "Generated ${label} key for ${user}"
+      return 0
+    fi
+
+    ((try++))
+  done
+
+  echo "ERROR: Failed to generate a key for ${user} after ${max_tries} attempts" >&2
+  return 1
+}
+
 mkdir -p ${privKeys}
 
 
@@ -62,12 +141,17 @@ for user in "${selected_users[@]}"; do
     exit -1
   fi
 
-  ssh-keygen -t ecdsa -f /home/${user}/.ssh/id_ecdsa -N '' -C "${user}@unknown_host"
-  chmod 644 /home/${user}/.ssh/authorized_keys
-  cat /home/$user/.ssh/id_ecdsa > ${privKeys}/${user}
-  chmod 600 ${privKeys}/${user}
-  chown $user:$user /home/$user/.ssh/id_ecdsa*
-  cat /home/$user/.ssh/id_ecdsa.pub >> /home/$user/.ssh/authorized_keys
+  declare -a key_types=("rsa" "ed25519" "ecdsa")
+
+  # Usage inside your user-creation loop:
+  gen_random_ssh_key "$user" || exit 1
+
+  #ssh-keygen -t ecdsa -f /home/${user}/.ssh/id_ecdsa -N '' -C "${user}@unknown_host"
+  #chmod 644 /home/${user}/.ssh/authorized_keys
+  #cat /home/$user/.ssh/id_ecdsa > ${privKeys}/${user}
+  #chmod 600 ${privKeys}/${user}
+  #chown $user:$user /home/$user/.ssh/id_ecdsa*
+  #cat /home/$user/.ssh/id_ecdsa.pub >> /home/$user/.ssh/authorized_keys
   
 done
 
