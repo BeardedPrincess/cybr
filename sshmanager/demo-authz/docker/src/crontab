@@ -1,2 +1,3 @@
-@reboot		root	/ussh-data/bin/initVars.sh 2>&1 && /ussh-data/bin/startSSHD.sh >> $(cat /tmp/LOG)/startSSHD.log 2>&1 && /ussh-data/bin/createUsers.sh 2>&1 >> $(cat /tmp/LOG)/createUsers.log 2>&1
-* * * * *	root	/ussh-data/bin/connectSSH.sh > $(cat /tmp/LOG)/ssh-client.log 2>&1
+@reboot		root	/ussh-data/bin/run.sh > /dev/stdout 2>&1
+#@reboot		root	/ussh-data/bin/initVars.sh 2>&1 && /ussh-data/bin/startSSHD.sh >> $(cat /tmp/LOG)/startSSHD.log 2>&1 && /ussh-data/bin/createUsers.sh 2>&1 >> $(cat /tmp/LOG)/createUsers.log 2>&1
+#* * * * *	root	/ussh-data/bin/connectSSH.sh > $(cat /tmp/LOG)/ssh-client.log 2>&1

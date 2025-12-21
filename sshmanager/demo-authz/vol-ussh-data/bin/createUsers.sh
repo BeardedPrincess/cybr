@@ -5,7 +5,6 @@
 umask 002
 source /tmp/.env
 privKeys=${myHostDir}/privateKeys
-echo ${privKeys}
 
 if [ -d ${privKeys} ]; then
   echo "Users already created, exiting without changes"
@@ -14,24 +13,32 @@ fi
 
 mkdir -p ${privKeys}
 
-# List of usernames to choose from
-usernames=("svc_admin" "svc_dbbackup" "kjackson" "jwilson" "svc_filetransfer" "dbapp01" "u_brooks" "svc_networkmonitor" "svc_printer" "jbell" "svc_email" "u_taylor" "svc_devops" "svc_clouduser" "dgreen" "rjones" "u_williams" "svc_backup" "svc_infrastructure" "svc_appuser" "svc_docker" "dperez" "svc_monitoring" "u_lee" "svc_ciuser" "sreed" "svc_logs" "svc_auth" "svc_systems" "svc_devtools" "svc_storage" "u_bennett" "svc_vpn" "jmartinez" "svc_billing" "svc_inbox" "kbarrett" "jnewman" "svc_sharepoint" "svc_security" "svc_jira" "svc_projectx" "svc_backoffice" "svc_apiuser" "svc_deploy" "svc_gateway" "u_franklin" "svc_mailbox" "svc_smtp" "svc_proxy" "svc_appadmin" "svc_messaging" "svc_vault" "svc_datastore" "svc_cache" "svc_promotion" "svc_test" "svc_caching" "svc_webhook" "svc_gatewayadmin")
 
-# Randomly select a number between 1 and 7
-num_users=$((RANDOM % 7 + 1))
+# List of usernames to choose from
+declare -a usernames
+while read -r first _; do
+  # Skip empty lines and lines whose first non-whitespace char is '#'
+  [[ -z "${first}" || "${first}" == \#* ]] && continue
+
+  # Take only the first word on the line
+  usernames+=("${first}")
+done < /ussh-data/usernames.txt
+
+# We want somewhere between 4 and 10 users
+num_users=$((RANDOM % 7 + 4))
 
 # Randomly select the usernames
 selected_users=()
+already_used_indices=()
 for i in $(seq 1 $num_users); do
   random_index=$((RANDOM % ${#usernames[@]}))
+  # Ensure we don't select the same user twice
+  while [[ " ${already_used_indices[@]} " =~ " ${random_index} " ]]; do
+    random_index=$((RANDOM % ${#usernames[@]}))
+  done
+  already_used_indices+=("${random_index}")
   selected_users+=("${usernames[$random_index]}")
 done
-
-# Create ansible user
-# /usr/sbin/useradd -m -o -u 0 -s /bin/bash ansible 
-# echo 'ansible:password99!' | /usr/sbin/chpasswd
-# echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILYgHQvrZhyPx1lkVrSRM3fmWnuFhM3MeztbHUNcBf7W ansible@everywhere' > /home/ansible/.ssh/authorized_keys 
-#echo "ansible:iaodsfjaoifjafj" | /usr/sbin/chpasswd
 
 # Create the selected users
 for user in "${selected_users[@]}"; do
