@@ -3,4 +3,6 @@ docker/src/root-ca-bundle.pem
 
 vol-usssh-data/logs/
 vol-usssh-data/servers/
+vol-ussh-data/user_ca/
+
 bin/res/authzhelper

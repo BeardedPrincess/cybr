@@ -1,6 +1,14 @@
 # Demo SSH Manager Authorization (25.3)
 This collection of scripts can be used to demonstrate the realtime observability of SSH key usage on many SSH hosts at once leveraging SSH Manager's `authzhelper` as an `AuthorizedKeysCommand` within `sshd_config` on the target hosts.
 
+# Prerequisites
+- Trust Protection Platform running 25.3 or later
+- An account (TPP local, AD/LDAP) which has been given access to use the "CyberArk AuthZHelper" API Integration
+- Stage the authzhelper installation bundle at: `C:\Program Files\Venafi\Web\ClientDistribution\sshmanager\authzhelper-linux-amd64-latest.tgz`
+    > NOTE: The naming convention for the .tgz file differs from what ships in the installation!
+
+
+
 # Requirements
 - A host running a recent/supported version of Linux (testing was done using Ubuntu 22.04 and 24.04)
 - Docker engine installed. <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener noreferrer">Installation Guide ↗︎</a>
