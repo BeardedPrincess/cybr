@@ -53,4 +53,4 @@ echo -e "${hn}\t Selected target index: ${random_target_index}"
 tgtuser=$(basename "${targets[$random_target_index]}")
 tgthost=$(basename "$(dirname "${targets[$random_target_index]}")")
 echo -e "${hn}\t Targeting user '${tgtuser}' on host '${tgthost}'"
-ssh -i ${targets[$random_target_index]} ${tgtuser}@${tgthost} /ussh-data/bin/sshCommand.sh ${hn}
+ssh -i ${targets[$random_target_index]} ${tgtuser}@${tgthost} /ussh-data/bin/sshCommand.sh ${hn} || echo "..SSH ${tgtuser}@${tgthost} failed."

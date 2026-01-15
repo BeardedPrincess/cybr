@@ -17,5 +17,5 @@ ${SCRIPT_ROOT}/createUsers.sh >> ${logDir}/createUsers.log 2>&1
 while :; do
     ${SCRIPT_ROOT}/connectSSH.sh >> ${logDir}/ssh-client.log 2>&1
     # Sleep for a random time between 5 and 8 seconds before next connection attempt
-    sleep $((RANDOM % 4 + 5))
+    sleep $((RANDOM % 28 + 2))
 done
