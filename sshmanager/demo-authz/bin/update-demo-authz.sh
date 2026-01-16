@@ -50,8 +50,10 @@ info "Validating connection to TPP server at ${TPP_HOST}..."
 curl -o /dev/null -s -w "%{http_code}" --insecure "https://${TPP_HOST}/healthcheck" | grep -q "200" || \
   die "Failed to connect to TPP server at ${TPP_HOST}. Please ensure the TPP host is correct and reachable."
 
-# Retrieve the root certificate
-get_root_cert_from "${TPP_HOST}" "${ROOT_PEM_FILE}"
+if [ ! -f "${DEMO_ROOT}/docker/src/root-ca-bundle.pem" ]; then
+  # Retrieve the root certificate
+  get_root_cert_from "${TPP_HOST}" "${ROOT_PEM_FILE}"
+fi
 
 # We need to make a copy of the root CA bundle for use inside the Docker container
 cp "${ROOT_PEM_FILE}" "${DEMO_ROOT}/docker/src/root-ca-bundle.pem" > /dev/null
