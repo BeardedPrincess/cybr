@@ -68,7 +68,7 @@ info "\t Image '${DOCKER_IMAGE_NAME}' built successfully"
 # Download the latest authz-helper release
 info "Downloading latest authz-helper release from ${AUTHZ_SRC}..."
 
-curl -o "${TMP_DIR}/authz-helper-latest.tgz" -s --cacert "${ROOT_PEM_FILE}" \
+curl -o "${TMP_DIR}/authz-helper-latest.tgz" -s --cacert "${DEMO_ROOT}/docker/src/root-ca-bundle.pem" \
   "${AUTHZ_SRC}" || \
   die "Failed to download authz-helper. Please check your network connection and the AUTHZ_SRC URL."
 
