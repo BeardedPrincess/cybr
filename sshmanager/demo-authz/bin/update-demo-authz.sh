@@ -53,10 +53,13 @@ curl -o /dev/null -s -w "%{http_code}" --insecure "https://${TPP_HOST}/healthche
 if [ ! -f "${DEMO_ROOT}/docker/src/root-ca-bundle.pem" ]; then
   # Retrieve the root certificate
   get_root_cert_from "${TPP_HOST}" "${ROOT_PEM_FILE}"
+
+  # We need to make a copy of the root CA bundle for use inside the Docker container
+  cp "${ROOT_PEM_FILE}" "${DEMO_ROOT}/docker/src/root-ca-bundle.pem" > /dev/null 2>&1 || \
+    die "Failed to copy root CA bundle to Docker source directory."
 fi
 
-# We need to make a copy of the root CA bundle for use inside the Docker container
-cp "${ROOT_PEM_FILE}" "${DEMO_ROOT}/docker/src/root-ca-bundle.pem" > /dev/null
+
 
 info "Building Docker image '${DOCKER_IMAGE_NAME}'"
 out=$(${DOCKER_CMD} build -t "${DOCKER_IMAGE_NAME}" -f "${DEMO_ROOT}/docker/Dockerfile" "${DEMO_ROOT}/docker" 2>&1) || die "Failed to build Docker image: \n${DIM}${BOLD}$out${RESET}"
