@@ -44,8 +44,8 @@ for i in ${!tgtIDs[@]}; do
   tgtId=${tgtIDs[${i}]}
   tgtName=$(${DOCKER_CMD} inspect --format '{{ .Name }}' ${tgtId})
   tgtPort=$(${DOCKER_CMD} inspect --format '{{ (index (index .NetworkSettings.Ports "22/tcp") 0).HostPort }}' ${tgtId})
-  sshCmd="ssh -i ${SCRIPT_ROOT}/res/.ssh/ansible.key -p ${tgtPort} ansible@localhost"
-  scpCmd="scp -i ${SCRIPT_ROOT}/res/.ssh/ansible.key -P ${tgtPort}" 
+  sshCmd="ssh -o StrictHostKeyChecking=no -i ${SCRIPT_ROOT}/res/.ssh/ansible.key -p ${tgtPort} ansible@localhost"
+  scpCmd="scp -o StrictHostKeyChecking=no -i ${SCRIPT_ROOT}/res/.ssh/ansible.key -P ${tgtPort}" 
 
   if [ "${confirmAll}" = false ]; then
     # Get confirmation before installing
