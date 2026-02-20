@@ -109,7 +109,7 @@ for i in ${!tgtIDs[@]}; do
     ${scpCmd} ${sshdConf} ansible@localhost:/etc/ssh/sshd_config > /dev/null 2>&1
     printf "%b${WHITE}\tNew /etc/sshd_config: ${RESET}"
     cat ${sshdConf} | while read -r line; do
-      printf "%b\t${WHITE}\t\t${line}${RESET}\n"
+      printf "%b${WHITE}\t\t${line}${RESET}\n"
     done
     ${sshCmd} "chmod 0600 /etc/ssh/sshd_config" > /dev/null 2>&1
   printf "%b${GREEN}...[SUCCESS]${RESET}\n"
