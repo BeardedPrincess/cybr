@@ -90,6 +90,6 @@ for ((i=0; i<${NUM_SERVERS}; i++)); do
   hostname="${servernames[${random_index}]}-${port}"
   info "Starting server: ${hostname} listening on port ${port}"
 
-  out=$(${DOCKER_CMD} run --rm -d -v "${VOL_DIR}":"/ussh-data" -p ${port}:22 --name "${hostname}" --hostname "${hostname}" ${DOCKER_IMAGE_NAME} 2>&1) \
+  out=$(${DOCKER_CMD} run --rm -d -v "${VOL_DIR}":"/ussh-data" -p ${port}:22 --network=host --name "${hostname}" --hostname "${hostname}" ${DOCKER_IMAGE_NAME} 2>&1) \
     || warn "Failed to start server ${hostname}: ${out}"
 done
