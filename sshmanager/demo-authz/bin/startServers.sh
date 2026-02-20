@@ -7,6 +7,8 @@ scriptRoot=$(dirname "$(realpath "${0}")")
 source "$(dirname "$(realpath "${0}")")/lib/_lib.sh" 
 common_init
 
+TPP_IP=$(getent hosts "${TPP_HOST}" | awk '{ print $1 }') || die "Failed to resolve IP for TPP host: ${TPP_HOST}"
+
 debug "Checking for already running containers..."
 # Get a list of running containers, based on our image
 image_ancestor=$(${DOCKER_CMD} images -q "${DOCKER_IMAGE_NAME}") > /dev/null 2>&1 || die "Failed to get image id for ${DOCKER_IMAGE_NAME}"
@@ -88,8 +90,9 @@ for ((i=0; i<${NUM_SERVERS}; i++)); do
   
   used+=(${random_index})
   hostname="${servernames[${random_index}]}-${port}"
+
   info "Starting server: ${hostname} listening on port ${port}"
 
-  out=$(${DOCKER_CMD} run --rm -d -v "${VOL_DIR}":"/ussh-data" -p ${port}:22 --network=host --name "${hostname}" --hostname "${hostname}" ${DOCKER_IMAGE_NAME} 2>&1) \
+  out=$(${DOCKER_CMD} run --rm -d -v "${VOL_DIR}":"/ussh-data" -p ${port}:22 --add-host "${TPP_HOST}:${TPP_IP}" --name "${hostname}" --hostname "${hostname}" ${DOCKER_IMAGE_NAME} 2>&1) \
     || warn "Failed to start server ${hostname}: ${out}"
 done
